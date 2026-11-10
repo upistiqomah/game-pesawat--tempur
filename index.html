@@ -1,0 +1,219 @@
+HTML
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi Galaksi - Game Edukasi</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#05091e;color:white;
+ font-family:Arial,sans-serif;text-align:center;
+}
+header{padding:15px;background:#101b42}
+h1{color:#62eaff;margin:8px}
+button{
+ background:#08b9e8;color:#00152b;border:0;
+ border-radius:10px;padding:12px 18px;
+ font-weight:bold;cursor:pointer;margin:5px;
+}
+button:hover{background:#8af2ff}
+#game{max-width:850px;margin:auto;padding:12px}
+#space{
+ height:170px;position:relative;overflow:hidden;
+ background:radial-gradient(ellipse,#172e69,#030716);
+ border:2px solid #36c9ff;border-radius:15px;
+}
+.star{position:absolute;background:white;border-radius:50%}
+#ship{position:absolute;bottom:12px;left:50%;
+ transform:translateX(-50%);font-size:42px}
+#enemy{position:absolute;top:20px;left:50%;
+ transform:translateX(-50%);font-size:38px}
+#laser{position:absolute;bottom:60px;left:50%;
+ width:5px;height:40px;background:#36ffff;
+ box-shadow:0 0 15px cyan;display:none}
+.stats{
+ display:flex;justify-content:space-around;
+ flex-wrap:wrap;gap:8px;margin:12px 0;
+}
+.stat{background:#14234c;padding:10px;border-radius:10px}
+.panel{
+ background:#101c40;border:1px solid #315c9e;
+ border-radius:15px;padding:18px;margin:12px 0;
+}
+#question{font-size:18px;line-height:1.6}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answers button{
+ background:#263d70;color:white;text-align:left;
+ min-height:55px;border:1px solid #5c8bca;
+}
+.answers button:hover{background:#087da7}
+.answers button:disabled{opacity:.65;cursor:default}
+#feedback{min-height:28px;color:#ffe66d;font-weight:bold}
+.hidden{display:none}
+.levelbar{
+ height:12px;background:#263451;border-radius:20px;
+ overflow:hidden;margin:10px 0;
+}
+#progress{height:100%;width:0;background:#21e6bd}
+footer{color:#9aafd8;font-size:12px;padding:20px}
+@media(max-width:550px){
+ .answers{grid-template-columns:1fr}
+ h1{font-size:22px}
+ #question{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🚀 MISI GALAKSI 🚀</h1>
+<p>Game Edukasi Bahasa Indonesia</p>
+<strong>Petualangan 30 Soal Teks Eksplanasi</strong>
+</header>
+
+<div id="game">
+
+<div class="stats">
+ <div class="stat">⭐ Skor: <span id="score">0</span></div>
+ <div class="stat">❤️ Nyawa: <span id="lives">5</span></div>
+ <div class="stat">🌌 Level: <span id="level">1</span>/5</div>
+ <div class="stat">📚 Soal: <span id="number">0</span>/30</div>
+</div>
+
+<div class="levelbar"><div id="progress"></div></div>
+
+<div id="space">
+ <div id="enemy">👾</div>
+ <div id="laser"></div>
+ <div id="ship">🚀</div>
+</div>
+
+<div class="panel" id="start">
+ <h2>🌠 Selamat Datang, Komandan!</h2>
+ <p>
+ Galaksi sedang diserang pasukan alien!
+ Jawablah 30 soal tentang teks eksplanasi
+ untuk mengalahkan musuh dan menyelamatkan galaksi.
+ </p>
+ <p>Setiap level terdiri dari 6 soal.</p>
+ <button onclick="startGame()">MULAI MISI 🚀</button>
+</div>
+
+<div class="panel hidden" id="quiz">
+ <h3 id="levelTitle">LEVEL 1</h3>
+ <p id="levelDesc">Pelatihan Penjelajah Galaksi</p>
+ <p id="question"></p>
+ <div class="answers" id="answers"></div>
+ <p id="feedback"></p>
+ <button id="next" class="hidden" onclick="nextQuestion()">
+ LANJUTKAN MISI ➜
+ </button>
+</div>
+
+<div class="panel hidden" id="result">
+ <h2>🏆 MISI SELESAI!</h2>
+ <h3 id="finalScore"></h3>
+ <p id="finalMessage"></p>
+ <button onclick="startGame()">MAIN LAGI 🔄</button>
+</div>
+
+<div class="panel hidden" id="gameover">
+ <h2>💥 MISI GAGAL!</h2>
+ <p>Pesawatmu kehabisan energi.</p>
+ <button onclick="startGame()">COBA LAGI 🚀</button>
+</div>
+
+</div>
+
+<footer>
+Game Pembelajaran Bahasa Indonesia | Materi Teks Eksplanasi
+</footer>
+
+<script>
+const questions = [
+[
+["Apa yang dimaksud dengan teks eksplanasi?",
+"Teks yang menjelaskan proses terjadinya suatu fenomena",
+"Teks yang berisi cerita khayalan",
+"Teks yang menggambarkan tokoh",
+"Teks yang berisi percakapan",0],
+["Tujuan utama teks eksplanasi adalah...",
+"Menghibur pembaca",
+"Menjelaskan bagaimana dan mengapa suatu peristiwa terjadi",
+"Mempromosikan produk",
+"Menceritakan pengalaman pribadi",1],
+["Fenomena yang dapat dijelaskan dalam teks eksplanasi adalah...",
+"Fenomena alam dan sosial",
+"Daftar belanja",
+"Dialog drama",
+"Puisi cinta",0],
+["Contoh fenomena alam adalah...",
+"Pemilihan ketua kelas",
+"Gempa bumi",
+"Rapat organisasi",
+"Perdagangan",1],
+["Teks eksplanasi biasanya bersifat...",
+"Fiktif",
+"Objektif dan berdasarkan fakta",
+"Rahasia",
+"Persuasif semata",1],
+["Informasi dalam teks eksplanasi harus disusun secara...",
+"Acak",
+"Berurutan dan logis",
+"Terbalik",
+"Tidak berhubungan",1]
+],
+[
+["Struktur pertama teks eksplanasi adalah...",
+"Interpretasi",
+"Pernyataan umum",
+"Penutup cerita",
+"Orientasi tokoh",1],
+["Bagian yang menjelaskan urutan proses kejadian disebut...",
+"Deretan penjelas",
+"Abstrak",
+"Koda",
+"Resolusi",0],
+["Bagian interpretasi berisi...",
+"Pendapat atau simpulan tentang fenomena",
+"Daftar tokoh",
+"Percakapan",
+"Tempat kejadian",0],
+["Kata 'karena' menunjukkan hubungan...",
+"Perbandingan",
+"Sebab",
+"Pilihan",
+"Pertentangan",1],
+["Kata 'kemudian' menunjukkan hubungan...",
+"Urutan waktu",
+"Perlawanan",
+"Perbandingan",
+"Penegasan",0],
+["Manakah kalimat pernyataan umum?",
+"Air menguap akibat panas matahari",
+"Hujan adalah peristiwa jatuhnya air dari atmosfer ke bumi",
+"Setelah itu awan menjadi berat",
+"Akhirnya turun hujan",1]
+],
+[
+["Kata teknis dalam teks eksplanasi tentang gunung berapi adalah...",
+"Magma",
+"Bahagia",
+"Indah",
+"Lucu",0],
+["Konjungsi kausalitas adalah...",
+"Dan",
+"Atau",
+"Sehingga",
+"Tetapi",2],
+["Kalimat yang menunjukkan sebab-akibat adalah...",
+"Adik membaca buku",
+"Banjir terjadi karena saluran air tersumbat",
+"Ibu memasak nasi",
+"Ayah pergi bekerja",1],
+["Teks eksplanasi menggunakan fakta karena...",
+"Agar terlihat lucu",
+"Agar penjelasan dapat dipercaya",
+"Agar menjadi dong
